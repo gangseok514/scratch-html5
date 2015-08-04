@@ -4,9 +4,12 @@
 */
 #player-container {
     position: relative;
+    top: 50%;
+    left: 50%;
+    margin-top: -240px;
+    margin-left: -241px;
     width: 482px;
     /* padding: 48px;*/
-    margin: 0 auto;
     font-family: sans-serif;
     /* Before, we accomplished this with e.preventDefault
      * on the context div.  But, we'd like to use those click events
@@ -18,6 +21,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    display: none;
 }
 
 /*  Control bar above the stage */

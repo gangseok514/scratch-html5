@@ -23,11 +23,8 @@
 'use strict';
 
 var runtime, interp, io, iosAudioActive = false;
-var Platform;
 
 function Scratch(project_id) {
-    Platform = require('util/Platform');
-
     runtime = new Runtime();
     runtime.init();
 
@@ -66,11 +63,11 @@ function Scratch(project_id) {
         project.select();
     });
 
-    var width = address.outerWidth();
+    /*var width = address.outerWidth();
     project.css({
         paddingLeft: width,
         marginLeft: -width
-    });
+    });*/
 
     // Go project button behavior
     $('#go-project').click(function() {
