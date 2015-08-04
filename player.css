@@ -5,7 +5,7 @@
 #player-container {
     position: relative;
     width: 482px;
-    padding: 48px;
+    /* padding: 48px;*/
     margin: 0 auto;
     font-family: sans-serif;
     /* Before, we accomplished this with e.preventDefault
@@ -61,6 +61,20 @@ button#toggle-fullscreen {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+img#openfileimage {
+    background-image: url(img/openfile.png);
+    width: 40px;
+    height: 38px;
+    border: 0px;
+    position: absolute;
+    top: 0;
+    left: 40px;
+    display: none;
+}
+input#file {
+    display: none;
 }
 button#trigger-green-flag {
     background-image: url(img/greenFlagOff.png);
