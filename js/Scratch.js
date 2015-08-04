@@ -23,7 +23,11 @@
 'use strict';
 
 var runtime, interp, io, iosAudioActive = false;
+var Platform;
+
 function Scratch(project_id) {
+    Platform = require('util/Platform');
+
     runtime = new Runtime();
     runtime.init();
 

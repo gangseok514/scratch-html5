@@ -69,8 +69,8 @@ img#openfileimage {
     height: 38px;
     border: 0px;
     position: absolute;
-    top: 0;
-    left: 40px;
+    top: 0px;
+    left: 0px;
     display: none;
 }
 input#file {
@@ -242,7 +242,7 @@ button#trigger-stop:hover {
     padding-left: 6px;
     vertical-align: middle;
 }
-#go-project {
+#go-project, #load-project{
     padding: 6px;
     margin: 0;
     border: 1px solid #aaa;
@@ -487,5 +487,3 @@ button#trigger-stop:hover {
     height: 25px;
     background: url(img/ask-button.png) transparent no-repeat;
 }
-
-

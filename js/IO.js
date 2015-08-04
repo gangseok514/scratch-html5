@@ -35,21 +35,22 @@ var IO = function() {
 IO.prototype.loadProject = function(project_id) {
     var self = this;
 
-    Platform.loadProject(project_id, function(data) {
+    /*
+    Platform.getJSON(project_id, function(data) {
         self.data = data;
         self.makeObjects();
         self.loadThreads();
         self.loadNotesDrums();
         runtime.loadStart(); // Try to run the project.
     });
-    /*
+    */
     $.getJSON(this.project_base + project_id + this.project_suffix, function(data) {
         self.data = data;
         self.makeObjects();
         self.loadThreads();
         self.loadNotesDrums();
         runtime.loadStart(); // Try to run the project.
-    });*/
+    });
 };
 
 IO.prototype.soundRequest = function(sound, sprite) {
