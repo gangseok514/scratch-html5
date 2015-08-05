@@ -65,13 +65,14 @@ var Sprite = function(data) {
     this.penColorCache = 0x0000FF;
 
     // Used for layering
-    if (!this.z) this.z = io.getCount();
+    if (!this.z) this.z = io.getCount() * 2;
 
     // HTML element for the talk bubbles
     this.talkBubble = null;
     this.talkBubbleBox = null;
     this.talkBubbleStyler = null;
     this.talkBubbleOn = false;
+    this.talkBubbleFlipped = false;
 
     // HTML element for the ask bubbles
     this.askInput = null;
@@ -309,36 +310,26 @@ Sprite.prototype.updateTransform = function() {
         // sign to the X scale.
     }
 
-    $(this.mesh).css(
-        'transform',
-        'translatex(' + drawX + 'px) ' +
-        'translatey(' + drawY + 'px) ' +
-        'rotate(' + this.rotation + 'deg) ' +
-        'scaleX(' + scaleXprepend + (this.scale / resolution) + ') scaleY(' +  (this.scale / resolution) + ')'
-    );
-    $(this.mesh).css(
-        '-moz-transform',
-        'translatex(' + drawX + 'px) ' +
-        'translatey(' + drawY + 'px) ' +
-        'rotate(' + this.rotation + 'deg) ' +
-        'scaleX(' + scaleXprepend + this.scale + ') scaleY(' +  this.scale / resolution + ')'
-    );
-    $(this.mesh).css(
-        '-webkit-transform',
-        'translatex(' + drawX + 'px) ' +
-        'translatey(' + drawY + 'px) ' +
-        'rotate(' + this.rotation + 'deg) ' +
-        'scaleX(' + scaleXprepend + (this.scale / resolution) + ') scaleY(' +  (this.scale / resolution) + ')'
-    );
+    var transformValues = 'translatex(' + drawX + 'px) ' +
+                           'translatey(' + drawY + 'px) ' +
+                           'rotate(' + this.rotation + 'deg) ' +
+                           'scaleX(' + scaleXprepend + (this.scale / resolution) + ') scaleY(' +  (this.scale / resolution) + ')';
 
-    $(this.mesh).css('-webkit-transform-origin', rotationCenterX + 'px ' + rotationCenterY + 'px');
-    $(this.mesh).css('-moz-transform-origin', rotationCenterX + 'px ' + rotationCenterY + 'px');
-    $(this.mesh).css('-ms-transform-origin', rotationCenterX + 'px ' + rotationCenterY + 'px');
-    $(this.mesh).css('-o-transform-origin', rotationCenterX + 'px ' + rotationCenterY + 'px');
-    $(this.mesh).css('transform-origin', rotationCenterX + 'px ' + rotationCenterY + 'px');
+    $(this.mesh).css(
+      {'transform': transformValues,
+       '-moz-transform': transformValues,
+       '-webkit-transform': transformValues});
+
+    var transformOriginValues = rotationCenterX + 'px ' + rotationCenterY + 'px';
+    $(this.mesh).css(
+      {'-webkit-transform-origin': transformOriginValues,
+       '-moz-transform-origin': transformOriginValues,
+       '-ms-transform-origin': transformOriginValues,
+       '-o-transform-origin': transformOriginValues,
+       'transform-origin': transformOriginValues});
 
     // Don't forget to update the talk bubble.
-    if (this.talkBubble) {
+    if (this.talkBubble && this.talkBubbleOn) {
         var xy = this.getTalkBubbleXY();
         this.talkBubble.css('left', xy[0] + 'px');
         this.talkBubble.css('top', xy[1] + 'px');
@@ -357,23 +348,50 @@ Sprite.prototype.updateFilters = function() {
 };
 
 Sprite.prototype.getTalkBubbleXY = function() {
-    var texture = this.textures[this.currentCostumeIndex];
-    var drawWidth = texture.width * this.scale;
-    var drawHeight = texture.height * this.scale;
-    var rotationCenterX = this.costumes[this.currentCostumeIndex].rotationCenterX;
-    var rotationCenterY = this.costumes[this.currentCostumeIndex].rotationCenterY;
-    var drawX = this.scratchX + (480 / 2) - rotationCenterX;
-    var drawY = -this.scratchY + (360 / 2) - rotationCenterY;
-    return [drawX + drawWidth, drawY - drawHeight / 2];
+    var texture = this.textures[this.currentCostumeIndex],
+        resolution = this.costumes[this.currentCostumeIndex].bitmapResolution || 1,
+        drawWidth = texture.width * this.scale / resolution,
+        drawHeight = texture.height * this.scale / resolution;
+
+    var rotationCenterX = this.costumes[this.currentCostumeIndex].rotationCenterX,
+        rotationCenterY = this.costumes[this.currentCostumeIndex].rotationCenterY,
+        drawX = this.scratchX + (480 / 2) - rotationCenterX,
+        drawY = -this.scratchY + (360 / 2) - rotationCenterY;
+
+    var bubbleWidth = this.talkBubble.width(),
+        bubbleHeight = this.talkBubble.height() + 18; // 18 is -say height
+
+    var bubblePositionXBySprite = texture.width / 2 + drawWidth / 6,
+        bubblePositionYBySprite = (texture.height - drawHeight) / 2 - bubbleHeight;
+
+    var adjDrawX = drawX + bubblePositionXBySprite,
+        adjDrawY = drawY + bubblePositionYBySprite;
+
+    if(adjDrawX < 0) {
+      adjDrawX = drawX + (texture.width + drawWidth) / 2;
+      adjDrawX = adjDrawX < 0 ? 0 : adjDrawX;
+    } else if((adjDrawX + bubbleWidth) > 480) {
+      this.talkBubbleFlipped = true;
+      adjDrawX = drawX + (texture.width - drawWidth) / 2 - bubbleWidth + drawWidth / 6;
+      adjDrawX = (adjDrawX + bubbleWidth) > 480 ? 480 - bubbleWidth : adjDrawX;
+    }
+
+    //adjDrawX = adjDrawX < 0 ? 0 : ((adjDrawX + bubbleWidth) > 480 ? 480 - bubbleWidth : adjDrawX);
+    adjDrawY = adjDrawY < 0 ? 0 : ((adjDrawY + bubbleHeight) > 360 ? 360 - bubbleHeight : adjDrawY);
+
+    return [adjDrawX, adjDrawY];
 };
 
 Sprite.prototype.showBubble = function(text, type) {
-    var xy = this.getTalkBubbleXY();
+
+    if(!this.visible) return;
+
+    // to calculate layout first, we change visibility
+    this.talkBubble.css('visibility', 'hidden');
+    this.talkBubble.css('display', 'inline-block');
 
     this.talkBubbleOn = true;
-    this.talkBubble.css('z-index', this.z);
-    this.talkBubble.css('left', xy[0] + 'px');
-    this.talkBubble.css('top', xy[1] + 'px');
+    this.talkBubble.css('z-index', this.z + 1);
 
     this.talkBubbleBox.removeClass('say-think-border');
     this.talkBubbleBox.removeClass('ask-border');
@@ -381,6 +399,9 @@ Sprite.prototype.showBubble = function(text, type) {
     this.talkBubbleStyler.removeClass('bubble-say');
     this.talkBubbleStyler.removeClass('bubble-think');
     this.talkBubbleStyler.removeClass('bubble-ask');
+    this.talkBubbleStyler.removeClass('bubble-inverse');
+
+
     if (type == 'say') {
         this.talkBubbleBox.addClass('say-think-border');
         this.talkBubbleStyler.addClass('bubble-say');
@@ -392,10 +413,17 @@ Sprite.prototype.showBubble = function(text, type) {
         this.talkBubbleStyler.addClass('bubble-ask');
     }
 
-    if (this.visible) {
-        this.talkBubble.css('display', 'inline-block');
-    }
     this.talkBubbleBox.html(text);
+
+    var xy = this.getTalkBubbleXY();
+    this.talkBubble.css('left', xy[0] + 'px');
+    this.talkBubble.css('top', xy[1] + 'px');
+      
+    if(this.talkBubbleFlipped) {
+        this.talkBubbleStyler.addClass('bubble-inverse');
+    }
+
+    this.talkBubble.css('visibility', 'visible');
 };
 
 Sprite.prototype.hideBubble = function() {

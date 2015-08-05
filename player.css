@@ -463,6 +463,15 @@ button#trigger-stop:hover {
     height: 19px;
     background: url(img/think-bottom.png) transparent no-repeat;
 }
+
+.bubble-inverse {
+    transform: scaleX(-1);
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -ms-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+}
+
 .ask-container {
     position: absolute;
     display: inline-block;
@@ -474,6 +483,7 @@ button#trigger-stop:hover {
     font-size: 14px;
     color: #000;
 }
+
 .ask-container .ask-field .ask-text-field {
     width: 405px;
     height: 16px;
