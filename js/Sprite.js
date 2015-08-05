@@ -391,6 +391,7 @@ Sprite.prototype.showBubble = function(text, type) {
     this.talkBubble.css('display', 'inline-block');
 
     this.talkBubbleOn = true;
+    this.talkBubbleFlipped = false;
     this.talkBubble.css('z-index', this.z + 1);
 
     this.talkBubbleBox.removeClass('say-think-border');
@@ -400,7 +401,6 @@ Sprite.prototype.showBubble = function(text, type) {
     this.talkBubbleStyler.removeClass('bubble-think');
     this.talkBubbleStyler.removeClass('bubble-ask');
     this.talkBubbleStyler.removeClass('bubble-inverse');
-
 
     if (type == 'say') {
         this.talkBubbleBox.addClass('say-think-border');
@@ -418,7 +418,7 @@ Sprite.prototype.showBubble = function(text, type) {
     var xy = this.getTalkBubbleXY();
     this.talkBubble.css('left', xy[0] + 'px');
     this.talkBubble.css('top', xy[1] + 'px');
-      
+
     if(this.talkBubbleFlipped) {
         this.talkBubbleStyler.addClass('bubble-inverse');
     }

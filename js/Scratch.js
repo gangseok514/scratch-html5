@@ -87,6 +87,7 @@ function Scratch(project_id) {
         runtime.stopAll();
     });
 
+/*
     // Canvas container mouse events
     $('#container').mousedown(function(e) {
         runtime.mouseDown = true;
@@ -104,6 +105,7 @@ function Scratch(project_id) {
         var absY = e.clientY - bb.top;
         runtime.mousePos = [absX-240, -absY+180];
     });
+  */
 
     // Touch events - EXPERIMENTAL
     $(window).bind('touchstart', function(e) {
@@ -119,20 +121,28 @@ function Scratch(project_id) {
         }
     });
 
-    $('#container').bind('touchstart', function(e) {
-        runtime.mouseDown = true;
-    });
-
-    $('#container').bind('touchend', function(e) {
-        runtime.mouseDown = true;
-    });
-
-    $('#container').bind('touchmove', function(e) {
-        var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+    function getMousePos(e) {
+        var e = (e.originalEvent.touches && e.originalEvent.touches[0]) ||
+                    (e.originalEvent.changedTouches && e.originalEvent.changedTouches[0]) ||
+                    e;
         var bb = this.getBoundingClientRect();
-        var absX = touch.clientX - bb.left;
-        var absY = touch.clientY - bb.top;
-        runtime.mousePos = [absX-240, -absY+180];
+        var absX = e.clientX - bb.left;
+        var absY = e.clientY - bb.top;
+        return [absX-240, -absY+180];
+    }
+
+    $('#container').bind('mousedown touchstart', function(e) {
+        runtime.mouseDown = true;
+        runtime.mousePos = getMousePos.call(this, e);
+    });
+
+    $('#container').bind('mouseup touchend', function(e) {
+        runtime.mouseDown = false;
+        runtime.mousePos = getMousePos.call(this, e);
+    });
+
+    $('#container').bind('mousemove touchmove', function(e) {
+      runtime.mousePos = getMousePos.call(this, e);
     });
 
     // Border touch events - EXPERIMENTAL
