@@ -44,18 +44,23 @@ function Scratch(project_id) {
     project.val(project_id);
 
     // Validate project ID field
-    project.keyup(function() {
+    project.keyup(function(e) {
         var n = this.value;
 
         // Allow URL pasting
-        var e = /projects\/(\d+)/.exec(n);
-        if (e) {
+        var valid = /projects\/(\d+)/.exec(n);
+        if (valid) {
             n = this.value = e[1];
         }
 
         // Eventually, this will xhr to /projects/{{this.value}}/ and
         // change color based on whether the response is 404 or 200.
         $('#project-id, #address-hint').toggleClass('error', isNaN(n));
+
+        if(!isNaN(n) && e.keyCode === 13) {
+          $('#go-project').trigger('click');
+          return;
+        }
     });
 
     // Focus the actual input when the user clicks on the URL hint

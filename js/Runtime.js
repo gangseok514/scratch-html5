@@ -71,7 +71,8 @@ Runtime.prototype.loadStart = function() {
         return;
     }
     $('#preloader').css('display', 'none');
-    setInterval(this.step, 33);
+    //this.step();
+    setInterval(this.step, 16.7);
     this.projectLoaded = true;
 };
 
@@ -104,6 +105,9 @@ Runtime.prototype.step = function() {
     for (var r = 0; r < runtime.reporters.length; r++) {
         runtime.reporters[r].update();
     }
+
+    // TODO : improve performance, why requestAnimationFrame is slow on galaxy6? 
+    //this.requestAnimationFrame.call(window, this.step.bind(this));
 };
 
 // Stack functions -- push and remove stacks
@@ -231,3 +235,14 @@ Runtime.prototype.reassignZ = function(target, move) {
         newZ++;
     });
 };
+
+Runtime.prototype.requestAnimationFrame = (function() {
+  return window.requestAnimationFrame ||
+         window.webkitRequestAnimationFrame ||
+         mozRequestAnimationFrame ||
+         window.oRequestAnimationFrame ||
+         window.msRequestAnimationFrame ||
+         function (callback) {
+            window.setTimeout(callback, 16.7);
+         };
+}());
